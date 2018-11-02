@@ -6,7 +6,16 @@
         xmlns:local="clr-namespace:HoI4Manager"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <JournalEntryListConverter x:Key="JournalEntryListConverter"/>
+    </Window.Resources>
     <Grid>
-        
+        <TextBox Name="WorkshopID" HorizontalAlignment="Left" Height="23" Margin="27,9,0,0" TextWrapping="Wrap" Text="Workshop link here" GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top" Width="425"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="23" Width="17" Text="ID:"/>
+        <Button Content="Download!" HorizontalAlignment="Left" Margin="452,10,0,0" VerticalAlignment="Top" Width="75" Height="24" RenderTransformOrigin="0.5,0.5" Click="Download">
+        </Button>
+        <TextBlock Name="Debug" HorizontalAlignment="Left" Margin="10,37,0,10" TextWrapping="Wrap" Text="Debug:" Width="772"/>
+        <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="22" Margin="532,10,0,0" VerticalAlignment="Top" Width="150"/>
+
     </Grid>
 </Window>
