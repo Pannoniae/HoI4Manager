@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using Ionic.Zip;
+using ZipFile = Ionic.Zip.ZipFile;
 
 namespace HoI4Manager
 {
@@ -64,42 +66,36 @@ namespace HoI4Manager
 
         // Extract outer archive
 
-        label1:
-            try
-            {
-                ZipFile.ExtractToDirectory(
-                    Path.Combine(HoI4Path, $"{ID}.zip"),
-                    Path.Combine(HoI4Path, $"_{ID}_tmp"));
-            }
-            catch (IOException)
-            {
-                addEntry("File already exists, please remove file");
-                addEntry("Experimental feature: we are trying to clean up. If that fails, please remove manually");
-                Directory.Delete(Path.Combine(HoI4Path, $"_{ID}_tmp"), true); // recursive delete
-                goto label1; // I know GOTO is bad, but this is a legit solution here
-            }
+            System.IO.Compression.ZipFile.ExtractToDirectory(
+                Path.Combine(HoI4Path, $"{ID}.zip"),
+                Path.Combine(HoI4Path, $"_{ID}_tmp"));
 
-            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"ID"))[0];
+            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"{ID}"))[0];
             addEntry($"Inner archive is {innerArchiveName}");
 
             // Extract inner archive
 
             try
             {
-                ZipFile.ExtractToDirectory(
-                    Path.Combine(HoI4Path, $"_{ID}_tmp", $"ID", innerArchiveName),
-                    Path.Combine(HoI4Path, $"{ID}"));
+                //ZipFile.ExtractToDirectory(
+                //    innerArchiveName,
+                //    Path.Combine(HoI4Path, $"{ID}"));
+                ZipFile zip = ZipFile.Read(innerArchiveName);
+                Directory.CreateDirectory(Path.Combine(HoI4Path, $"{ID}"));
+                zip.ExtractAll(Path.Combine(HoI4Path, $"{ID}"), ExtractExistingFileAction.OverwriteSilently);
+                zip.Dispose();
             }
-            catch (IOException)
+            catch
             {
                 addEntry("Something happened while extracting the mod. Please check manually");
+                throw;
             }
 
             // copying descriptor.mod
             File.Copy(Path.Combine(HoI4Path, $"{ID}", "descriptor.mod"), Path.Combine(HoI4Path, $"{ID}._mod"));
 
             // modifying mod file
-            string[] descriptorMod = File.ReadAllLines(Path.Combine(HoI4Path, $"_{ID}._mod"));
+            string[] descriptorMod = File.ReadAllLines(Path.Combine(HoI4Path, $"{ID}._mod"));
 
             int i = 0;
             foreach (string line in descriptorMod)
@@ -110,7 +106,7 @@ namespace HoI4Manager
                     var _line = line.Replace("archive=", "path=");
                     var __line = _line.Replace(".zip", "");
                     var pos = __line.IndexOf("=");
-                    var ___line = __line.Substring(0, pos + 1) + "mod/" + __line.Substring(pos + 1);
+                    var ___line = __line.Substring(0, pos + 1) + "\"mod/" + $"{ID}\"";
 
                     descriptorMod[i] = ___line;
                 }
@@ -118,7 +114,26 @@ namespace HoI4Manager
             }
 
             // writing final .mod file
-            File.WriteAllLines(Path.Combine(HoI4Path, $"_{ID}.mod"), descriptorMod);
+            File.WriteAllLines(Path.Combine(HoI4Path, $"{ID}.mod"), descriptorMod);
+
+            // cleaning leftup
+            foreach (var file in Directory.GetFiles(HoI4Path))
+            {
+                if (Path.GetFileName(file).StartsWith("_") || Path.GetFileName(file).Contains("_mod") || Path.GetFileName(file).EndsWith(".zip"))
+                {
+                    addEntry($"Deleted junk file {Path.GetFileName(file)}");
+                    File.Delete(file);
+                }
+            }
+
+            foreach (var dir in Directory.GetDirectories(HoI4Path))
+            {
+                if (Path.GetFileName(dir).StartsWith("_")) // yes, it works this way... a directory is just a special file
+                {
+                    addEntry($"Deleted junk dir {Path.GetFileName(dir)}");
+                    Directory.Delete(dir, true); // recursive
+                }
+            }
         }
 
         private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
@@ -140,7 +155,7 @@ namespace HoI4Manager
 
         void addEntry(string text)
         {
-            if (Debug.Text.Length > 400)
+            if (Debug.Text.Length > 500)
             {
                 Debug.Text = "";
             }
