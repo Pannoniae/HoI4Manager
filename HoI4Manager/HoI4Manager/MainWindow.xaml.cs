@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using Ionic.Zip;
 using ZipFile = Ionic.Zip.ZipFile;
 
@@ -23,6 +25,8 @@ namespace HoI4Manager
         public MainWindow()
         {
             InitializeComponent();
+
+            Title = "HoI4Manager";
         }
 
         private void WorkshopID_GotFocus(object sender, RoutedEventArgs e)
@@ -58,6 +62,12 @@ namespace HoI4Manager
             // continue in DownloadFinished
         }
 
+        private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
+        {
+            addEntry("Download complete!");
+            ExtractZIP();
+        }
+
         void ExtractZIP()
         {
 
@@ -78,6 +88,40 @@ namespace HoI4Manager
         void BackgroundWorkerJob(object sender, DoWorkEventArgs e)
         {
             ExtractZIPAsync();
+        }
+
+        void ExtractZIPAsync()
+        {
+            // Extract outer archive
+
+            System.IO.Compression.ZipFile.ExtractToDirectory(
+                Path.Combine(HoI4Path, $"{ID}.zip"),
+                Path.Combine(HoI4Path, $"_{ID}_tmp"));
+
+            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"{ID}"))[0];
+
+            // Extract inner archive
+
+            ZipFile zip = ZipFile.Read(innerArchiveName);
+            zip.ExtractProgress += ZIPProgressBarUpdater;
+            Directory.CreateDirectory(Path.Combine(HoI4Path, $"{ID}"));
+            zip.ExtractAll(Path.Combine(HoI4Path, $"{ID}"), ExtractExistingFileAction.OverwriteSilently);
+            zip.Dispose();
+        }
+
+        private void ZIPProgressBarUpdater(object sender, ExtractProgressEventArgs e)
+        {
+            double totalPercentage;
+            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractEntry)
+            {
+                totalPercentage = (double)e.EntriesExtracted / (double)e.EntriesTotal * 100d;
+                Dispatcher.Invoke(() => (ProgressBar.Value = totalPercentage));
+
+            }
+            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractAll)
+            {
+                Dispatcher.Invoke(() => addEntry("Extraction complete"));
+            }
         }
 
         void BackgroundWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -112,48 +156,12 @@ namespace HoI4Manager
             // writing final .mod file
             File.WriteAllLines(Path.Combine(HoI4Path, $"{ID}.mod"), descriptorMod);
 
+            addEntry("Completed downloading mod.");
+
             ActuallyClean();
         }
 
-        void ExtractZIPAsync()
-        {
-            // Extract outer archive
-
-            System.IO.Compression.ZipFile.ExtractToDirectory(
-                Path.Combine(HoI4Path, $"{ID}.zip"),
-                Path.Combine(HoI4Path, $"_{ID}_tmp"));
-
-            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"{ID}"))[0];
-
-            // Extract inner archive
-
-            ZipFile zip = ZipFile.Read(innerArchiveName);
-            zip.ExtractProgress += ZIPProgressBarUpdater;
-            Directory.CreateDirectory(Path.Combine(HoI4Path, $"{ID}"));
-            zip.ExtractAll(Path.Combine(HoI4Path, $"{ID}"), ExtractExistingFileAction.OverwriteSilently);
-            zip.Dispose();
-        }
-
-        private void ZIPProgressBarUpdater(object sender, ExtractProgressEventArgs e)
-        {
-            double totalPercentage;
-            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractEntry)
-            {
-                totalPercentage = (((double)e.EntriesExtracted) / ((double)e.EntriesTotal) * 100d);
-                Dispatcher.Invoke(() => (ProgressBar.Value = totalPercentage));
-                
-            }
-            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractAll)
-            {
-                Dispatcher.Invoke(() => addEntry("Extraction complete"));
-            }
-        }
-
-        private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
-        {
-            addEntry("Download complete!");
-            ExtractZIP();
-        }
+        
 
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -162,18 +170,30 @@ namespace HoI4Manager
 
         int GetID(string link)
         {
-            var pos = link.IndexOf("id");
+            int pos = link.IndexOf("id");
+            if (pos == -1)
+            {
+                return int.Parse(link);
+            }
             return int.Parse(link.Substring(pos + 3));
         }
 
         void addEntry(string text)
         {
-            if (Debug.Text.Length > 500)
-            {
-                Debug.Text = "";
-            }
+            ScrollBar.ScrollToBottom();
             Debug.Text += "\n";
             Debug.Text += text;
+        }
+
+        void addEntry(string text, Color color)
+        {
+            ScrollBar.ScrollToBottom();
+            var run = new Run();
+            run.Text = text;
+            run.Foreground = new SolidColorBrush(color);
+
+            Debug.Inlines.Add("\n");
+            Debug.Inlines.Add(run);
         }
 
         private void Clean(object sender, RoutedEventArgs e)
@@ -197,10 +217,36 @@ namespace HoI4Manager
             {
                 if (Path.GetFileName(dir).StartsWith("_")) // yes, it works this way... a directory is just a special file
                 {
-                    addEntry($"Deleted junk dir {Path.GetFileName(dir)}");
+                    addEntry($"Deleted junk directory {Path.GetFileName(dir)}");
                     Directory.Delete(dir, true); // recursive
                 }
             }
+            addEntry("Cleared junk.", Colors.Red);
+            addEntry("\n");
+        }
+
+        private void CleanAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            CleanAll();
+        }
+
+        void CleanAll()
+        {
+            // cleaning leftup
+            foreach (var file in Directory.GetFiles(HoI4Path))
+            {
+                addEntry($"Deleted file {Path.GetFileName(file)}");
+                File.Delete(file);
+            }
+
+            foreach (var dir in Directory.GetDirectories(HoI4Path))
+            {
+                // yes, it works this way... a directory is just a special file
+                addEntry($"Deleted directory {Path.GetFileName(dir)}");
+                Directory.Delete(dir, true); // recursive
+            }
+
+            addEntry("Wiped everything.");
         }
     }
 }
