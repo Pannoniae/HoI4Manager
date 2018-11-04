@@ -10,13 +10,13 @@
         <JournalEntryListConverter x:Key="JournalEntryListConverter"/>
     </Window.Resources>
     <Grid>
-        <TextBox Name="WorkshopID" HorizontalAlignment="Left" Height="23" Margin="27,9,0,0" TextWrapping="Wrap" Text="Workshop link here" GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top" Width="425"/>
+        <TextBox Name="WorkshopID" ToolTip="Input the Workshop link or ID here." HorizontalAlignment="Left" Height="23" Margin="27,9,0,0" TextWrapping="Wrap" Text="Workshop link here" GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top" Width="425"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="23" Width="17" Text="ID:"/>
         <Button Content="Download!" HorizontalAlignment="Left" Margin="452,10,0,0" VerticalAlignment="Top" Width="75" Height="24" RenderTransformOrigin="0.5,0.5" Click="Download">
         </Button>
         <TextBlock Name="Debug" HorizontalAlignment="Left" Margin="10,37,0,10" TextWrapping="Wrap" Text="Debug:" Width="772"/>
         <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="22" Margin="532,10,0,0" VerticalAlignment="Top" Width="150"/>
-        <Button Content="Clean!" HorizontalAlignment="Left" Margin="713,9,0,0" VerticalAlignment="Top" Width="69" Height="23" Click="Clean"/>
+        <Button Content="Clean!" HorizontalAlignment="Left" Margin="713,9,0,0" VerticalAlignment="Top" Width="69" Height="23" Click="Clean" ToolTip="Cleans junk files."/>
 
     </Grid>
 </Window>

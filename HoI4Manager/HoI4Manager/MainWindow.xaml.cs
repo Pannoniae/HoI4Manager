@@ -61,33 +61,32 @@ namespace HoI4Manager
         void ExtractZIP()
         {
 
-        // Extract outer archive
-
-            System.IO.Compression.ZipFile.ExtractToDirectory(
-                Path.Combine(HoI4Path, $"{ID}.zip"),
-                Path.Combine(HoI4Path, $"_{ID}_tmp"));
-
-            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"{ID}"))[0];
-            addEntry($"Inner archive is {innerArchiveName}");
-
-            // Extract inner archive
-
-            try
+            // ExtractZIPAsync
+            BackgroundWorker bw = new BackgroundWorker
             {
-                //ZipFile.ExtractToDirectory(
-                //    innerArchiveName,
-                //    Path.Combine(HoI4Path, $"{ID}"));
-                ZipFile zip = ZipFile.Read(innerArchiveName);
-                Directory.CreateDirectory(Path.Combine(HoI4Path, $"{ID}"));
-                zip.ExtractAll(Path.Combine(HoI4Path, $"{ID}"), ExtractExistingFileAction.OverwriteSilently);
-                zip.Dispose();
-            }
-            catch
-            {
-                addEntry("Something happened while extracting the mod. Please check manually");
-                throw;
-            }
+                WorkerReportsProgress = true
+            };
+            bw.DoWork += BackgroundWorkerJob;
+            bw.RunWorkerCompleted += BackgroundWorkerCompleted;
 
+            bw.RunWorkerAsync();
+
+
+            
+        }
+
+        void BackgroundWorkerJob(object sender, DoWorkEventArgs e)
+        {
+            ExtractZIPAsync();
+        }
+
+        void BackgroundWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            ContinueExtractingZIP();
+        }
+
+        void ContinueExtractingZIP()
+        {
             // copying descriptor.mod
             File.Copy(Path.Combine(HoI4Path, $"{ID}", "descriptor.mod"), Path.Combine(HoI4Path, $"{ID}._mod"));
 
@@ -114,7 +113,40 @@ namespace HoI4Manager
             File.WriteAllLines(Path.Combine(HoI4Path, $"{ID}.mod"), descriptorMod);
 
             ActuallyClean();
-            
+        }
+
+        void ExtractZIPAsync()
+        {
+            // Extract outer archive
+
+            System.IO.Compression.ZipFile.ExtractToDirectory(
+                Path.Combine(HoI4Path, $"{ID}.zip"),
+                Path.Combine(HoI4Path, $"_{ID}_tmp"));
+
+            var innerArchiveName = Directory.GetFiles(Path.Combine(HoI4Path, $"_{ID}_tmp", $"{ID}"))[0];
+
+            // Extract inner archive
+
+            ZipFile zip = ZipFile.Read(innerArchiveName);
+            zip.ExtractProgress += ZIPProgressBarUpdater;
+            Directory.CreateDirectory(Path.Combine(HoI4Path, $"{ID}"));
+            zip.ExtractAll(Path.Combine(HoI4Path, $"{ID}"), ExtractExistingFileAction.OverwriteSilently);
+            zip.Dispose();
+        }
+
+        private void ZIPProgressBarUpdater(object sender, ExtractProgressEventArgs e)
+        {
+            double totalPercentage;
+            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractEntry)
+            {
+                totalPercentage = (((double)e.EntriesExtracted) / ((double)e.EntriesTotal) * 100d);
+                Dispatcher.Invoke(() => (ProgressBar.Value = totalPercentage));
+                
+            }
+            if (e.EventType == ZipProgressEventType.Extracting_AfterExtractAll)
+            {
+                Dispatcher.Invoke(() => addEntry("Extraction complete"));
+            }
         }
 
         private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
@@ -123,7 +155,7 @@ namespace HoI4Manager
             ExtractZIP();
         }
 
-        void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             ProgressBar.Value = e.ProgressPercentage;
         }
