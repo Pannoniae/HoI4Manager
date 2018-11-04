@@ -17,6 +17,8 @@ namespace HoI4Manager
     {
 
         private int ID;
+        var HoI4Path = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Paradox Interactive", "Hearts of Iron IV", "mod");
 
         public MainWindow()
         {
@@ -43,9 +45,6 @@ namespace HoI4Manager
                 return;
             }
 
-            var HoI4Path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Paradox Interactive", "Hearts of Iron IV", "mod");
 
             var downloadLink = $"http://workshop.abcvg.info/archive/394360/{ID}.zip";
             addEntry($"Downloading from {downloadLink}... to {HoI4Path}");
@@ -61,8 +60,6 @@ namespace HoI4Manager
 
         void ExtractZIP()
         {
-            var HoI4Path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Paradox Interactive", "Hearts of Iron IV", "mod");
 
         // Extract outer archive
 
@@ -116,24 +113,8 @@ namespace HoI4Manager
             // writing final .mod file
             File.WriteAllLines(Path.Combine(HoI4Path, $"{ID}.mod"), descriptorMod);
 
-            // cleaning leftup
-            foreach (var file in Directory.GetFiles(HoI4Path))
-            {
-                if (Path.GetFileName(file).StartsWith("_") || Path.GetFileName(file).Contains("_mod") || Path.GetFileName(file).EndsWith(".zip"))
-                {
-                    addEntry($"Deleted junk file {Path.GetFileName(file)}");
-                    File.Delete(file);
-                }
-            }
-
-            foreach (var dir in Directory.GetDirectories(HoI4Path))
-            {
-                if (Path.GetFileName(dir).StartsWith("_")) // yes, it works this way... a directory is just a special file
-                {
-                    addEntry($"Deleted junk dir {Path.GetFileName(dir)}");
-                    Directory.Delete(dir, true); // recursive
-                }
-            }
+            ActuallyClean();
+            
         }
 
         private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
@@ -161,6 +142,33 @@ namespace HoI4Manager
             }
             Debug.Text += "\n";
             Debug.Text += text;
+        }
+
+        private void Clean(object sender, RoutedEventArgs e)
+        {
+            ActuallyClean();
+        }
+
+        void ActuallyClean()
+        {
+            // cleaning leftup
+            foreach (var file in Directory.GetFiles(HoI4Path))
+            {
+                if (Path.GetFileName(file).StartsWith("_") || Path.GetFileName(file).Contains("_mod") || Path.GetFileName(file).EndsWith(".zip"))
+                {
+                    addEntry($"Deleted junk file {Path.GetFileName(file)}");
+                    File.Delete(file);
+                }
+            }
+
+            foreach (var dir in Directory.GetDirectories(HoI4Path))
+            {
+                if (Path.GetFileName(dir).StartsWith("_")) // yes, it works this way... a directory is just a special file
+                {
+                    addEntry($"Deleted junk dir {Path.GetFileName(dir)}");
+                    Directory.Delete(dir, true); // recursive
+                }
+            }
         }
     }
 }

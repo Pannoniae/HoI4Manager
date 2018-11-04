@@ -16,6 +16,7 @@
         </Button>
         <TextBlock Name="Debug" HorizontalAlignment="Left" Margin="10,37,0,10" TextWrapping="Wrap" Text="Debug:" Width="772"/>
         <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="22" Margin="532,10,0,0" VerticalAlignment="Top" Width="150"/>
+        <Button Content="Clean!" HorizontalAlignment="Left" Margin="713,9,0,0" VerticalAlignment="Top" Width="69" Height="23" Click="Clean"/>
 
     </Grid>
 </Window>
