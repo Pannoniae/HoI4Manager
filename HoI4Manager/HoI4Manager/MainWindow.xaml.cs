@@ -17,7 +17,7 @@ namespace HoI4Manager
     {
 
         private int ID;
-        var HoI4Path = Path.Combine(
+        string HoI4Path = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Paradox Interactive", "Hearts of Iron IV", "mod");
 
         public MainWindow()
