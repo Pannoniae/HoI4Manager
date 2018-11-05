@@ -247,5 +247,10 @@ namespace HoI4Manager
 
             addEntry("Wiped everything.\n");
         }
+
+        private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+        }
     }
 }

@@ -5,21 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HoI4Manager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Background="#FF2C2C2C" Foreground="#FFC7C7C7">
 
     <Grid>
         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="15" Text="ID:"/>
-        <TextBox Name="WorkshopID" HorizontalAlignment="Left" Height="20" Width="375" Margin="25,10,0,0" TextWrapping="Wrap" Text="Workshop link here" ToolTip="Type the Steam Workshop link of the mod here." GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top"/>
-        <Button Content="Download!" HorizontalAlignment="Left" Margin="405,10,0,0" VerticalAlignment="Top" Width="65" Height="20" Click="Download" IsDefault="True"/>
+        <TextBox Name="WorkshopID" HorizontalAlignment="Left" Height="20" Width="375" Margin="25,10,0,0" TextWrapping="Wrap" Text="Workshop link here" ToolTip="Type the Steam Workshop link of the mod here." GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top" Background="#FF3E3C55" Foreground="#FFD6D6D6"/>
+        <Button Content="Download!" HorizontalAlignment="Left" Margin="405,10,0,0" VerticalAlignment="Top" Width="65" Height="20" Click="Download" IsDefault="True" Background="#FF47485D" Foreground="#FFECECEC" BorderBrush="#FFABADB3"/>
 
-        <ScrollViewer Name="ScrollBar" Margin="10,60,10,30">
+        <ScrollViewer Name="ScrollBar" Margin="10,60,10,30" Background="#FF1D1D1D">
             <TextBlock Name="Debug" HorizontalAlignment="Left" TextWrapping="WrapWithOverflow" Text="Debug:">
             </TextBlock>
         </ScrollViewer>
-        <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="20" Margin="475,10,0,0" VerticalAlignment="Top" Width="200"/>
-        <Button Content="Clear cache" HorizontalAlignment="Left" Margin="680,10,0,0" VerticalAlignment="Top" Width="102" Height="20" Click="Clean" ToolTip="Cleans junk files."/>
-        <Button Content="Clear mod folder" HorizontalAlignment="Left" Margin="680,35,0,0" VerticalAlignment="Top" Width="102" Height="20" Foreground="Red" ToolTip="WARNING! This will WIPE the ENTIRE mod folder! ONLY use when told so OR the mods are not working!"  Click="CleanAllButton_Click"/>
-        <Border BorderBrush="LightGray" BorderThickness="1" HorizontalAlignment="Left" Height="60" VerticalAlignment="Top" Width="792"/>
+        <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="20" Margin="475,10,0,0" VerticalAlignment="Top" Width="200" Foreground="#FF001D80" Background="#FF2B2B2B" BorderBrush="#FFABADB3" ValueChanged="ProgressBar_ValueChanged"/>
+        <Button Content="Clear cache" HorizontalAlignment="Left" Margin="680,10,0,0" VerticalAlignment="Top" Width="102" Height="20" Click="Clean" ToolTip="Cleans junk files." Background="#FF47485D" Foreground="#FFECECEC" BorderBrush="#FFABADB3"/>
+        <Button Content="Clear mod folder" HorizontalAlignment="Left" Margin="663,389,0,0" VerticalAlignment="Top" Width="102" Height="20" Foreground="#FFD82E46" ToolTip="WARNING! This will WIPE the ENTIRE mod folder! ONLY use when told so OR the mods are not working!"  Click="CleanAllButton_Click" Background="#FF47485D" BorderBrush="#FFABADB3"/>
 
     </Grid>
 </Window>
