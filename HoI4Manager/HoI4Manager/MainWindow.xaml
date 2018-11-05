@@ -9,16 +9,17 @@
 
     <Grid>
         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="15" Text="ID:"/>
-        <TextBox Name="WorkshopID" ToolTip="Input the Workshop link or ID here." HorizontalAlignment="Left" Height="20" Width="375" Margin="25,10,0,0" TextWrapping="Wrap" Text="Workshop link here" GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top"/>
+        <TextBox Name="WorkshopID" HorizontalAlignment="Left" Height="20" Width="375" Margin="25,10,0,0" TextWrapping="Wrap" Text="Workshop link here" ToolTip="Type the Steam Workshop link of the mod here." GotFocus="WorkshopID_GotFocus" VerticalAlignment="Top"/>
         <Button Content="Download!" HorizontalAlignment="Left" Margin="405,10,0,0" VerticalAlignment="Top" Width="65" Height="20" Click="Download" IsDefault="True"/>
 
-        <ScrollViewer Name="ScrollBar" Margin="10,60,10,29">
+        <ScrollViewer Name="ScrollBar" Margin="10,60,10,30">
             <TextBlock Name="Debug" HorizontalAlignment="Left" TextWrapping="WrapWithOverflow" Text="Debug:">
             </TextBlock>
         </ScrollViewer>
         <ProgressBar Name="ProgressBar" HorizontalAlignment="Left" Height="20" Margin="475,10,0,0" VerticalAlignment="Top" Width="200"/>
-        <Button Content="Clean!" HorizontalAlignment="Left" Margin="680,10,0,0" VerticalAlignment="Top" Width="102" Height="20" Click="Clean" ToolTip="Cleans junk files."/>
-        <Button Content="Wipe mod folder" HorizontalAlignment="Left" Margin="680,35,0,0" VerticalAlignment="Top" Width="102" Height="20" Click="CleanAllButton_Click"/>
+        <Button Content="Clear cache" HorizontalAlignment="Left" Margin="680,10,0,0" VerticalAlignment="Top" Width="102" Height="20" Click="Clean" ToolTip="Cleans junk files."/>
+        <Button Content="Clear mod folder" HorizontalAlignment="Left" Margin="680,35,0,0" VerticalAlignment="Top" Width="102" Height="20" Foreground="Red" ToolTip="WARNING! This will WIPE the ENTIRE mod folder! ONLY use when told so OR the mods are not working!"  Click="CleanAllButton_Click"/>
+        <Border BorderBrush="LightGray" BorderThickness="1" HorizontalAlignment="Left" Height="60" VerticalAlignment="Top" Width="792"/>
 
     </Grid>
 </Window>

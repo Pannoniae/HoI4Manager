@@ -27,6 +27,8 @@ namespace HoI4Manager
             InitializeComponent();
 
             Title = "HoI4Manager";
+
+            addEntry("\n\n");
         }
 
         private void WorkshopID_GotFocus(object sender, RoutedEventArgs e)
@@ -41,17 +43,17 @@ namespace HoI4Manager
             try
             {
                 ID = GetID(WorkshopID.Text);
-                addEntry($"ID is {ID}");
+                addEntry($"ID is {ID}\n");
             }
             catch
             {
-                addEntry("Wrong workshop link");
+                addEntry("Wrong workshop link!\n");
                 return;
             }
 
 
             var downloadLink = $"http://workshop.abcvg.info/archive/394360/{ID}.zip";
-            addEntry($"Downloading from {downloadLink}... to {HoI4Path}");
+            addEntry($"Downloading from {downloadLink} to {HoI4Path}...\n");
             using (WebClient client = new WebClient())
             {
                 client.DownloadProgressChanged += DownloadProgressChanged;
@@ -64,7 +66,7 @@ namespace HoI4Manager
 
         private void DownloadFinished(object sender, AsyncCompletedEventArgs e)
         {
-            addEntry("Download complete!");
+            addEntry("Download complete, extracting file...\n", Colors.Orange);
             ExtractZIP();
         }
 
@@ -120,7 +122,7 @@ namespace HoI4Manager
             }
             if (e.EventType == ZipProgressEventType.Extracting_AfterExtractAll)
             {
-                Dispatcher.Invoke(() => addEntry("Extraction complete"));
+                Dispatcher.Invoke(() => addEntry("Extraction complete.\n", Colors.Orange));
             }
         }
 
@@ -156,7 +158,7 @@ namespace HoI4Manager
             // writing final .mod file
             File.WriteAllLines(Path.Combine(HoI4Path, $"{ID}.mod"), descriptorMod);
 
-            addEntry("Completed downloading mod.");
+            addEntry("Completed downloading mod.\n", Colors.Red);
 
             ActuallyClean();
         }
@@ -181,8 +183,7 @@ namespace HoI4Manager
         void addEntry(string text)
         {
             ScrollBar.ScrollToBottom();
-            Debug.Text += "\n";
-            Debug.Text += text;
+            Debug.Inlines.Add(text);
         }
 
         void addEntry(string text, Color color)
@@ -192,7 +193,6 @@ namespace HoI4Manager
             run.Text = text;
             run.Foreground = new SolidColorBrush(color);
 
-            Debug.Inlines.Add("\n");
             Debug.Inlines.Add(run);
         }
 
@@ -208,7 +208,7 @@ namespace HoI4Manager
             {
                 if (Path.GetFileName(file).StartsWith("_") || Path.GetFileName(file).Contains("_mod") || Path.GetFileName(file).EndsWith(".zip"))
                 {
-                    addEntry($"Deleted junk file {Path.GetFileName(file)}");
+                    addEntry($"Deleted junk file {Path.GetFileName(file)}\n");
                     File.Delete(file);
                 }
             }
@@ -217,12 +217,11 @@ namespace HoI4Manager
             {
                 if (Path.GetFileName(dir).StartsWith("_")) // yes, it works this way... a directory is just a special file
                 {
-                    addEntry($"Deleted junk directory {Path.GetFileName(dir)}");
+                    addEntry($"Deleted junk directory {Path.GetFileName(dir)}\n");
                     Directory.Delete(dir, true); // recursive
                 }
             }
-            addEntry("Cleared junk.", Colors.Red);
-            addEntry("\n");
+            addEntry("Cleared junk.\n\n");
         }
 
         private void CleanAllButton_Click(object sender, RoutedEventArgs e)
@@ -235,18 +234,18 @@ namespace HoI4Manager
             // cleaning leftup
             foreach (var file in Directory.GetFiles(HoI4Path))
             {
-                addEntry($"Deleted file {Path.GetFileName(file)}");
+                addEntry($"Deleted file {Path.GetFileName(file)}\n");
                 File.Delete(file);
             }
 
             foreach (var dir in Directory.GetDirectories(HoI4Path))
             {
                 // yes, it works this way... a directory is just a special file
-                addEntry($"Deleted directory {Path.GetFileName(dir)}");
+                addEntry($"Deleted directory {Path.GetFileName(dir)}\n");
                 Directory.Delete(dir, true); // recursive
             }
 
-            addEntry("Wiped everything.");
+            addEntry("Wiped everything.\n");
         }
     }
 }
